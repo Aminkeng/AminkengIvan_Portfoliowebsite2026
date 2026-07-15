@@ -9,6 +9,57 @@ const signToken = (id) =>
   });
 
 /**
+ * POST /api/auth/register
+ */
+exports.register = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { email, password, name } = req.body;
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(409).json({ success: false, message: 'Email already registered' });
+    }
+
+    // Create new admin
+    const admin = await Admin.create({
+      email,
+      password,
+      name: name || 'Admin',
+    });
+
+    const token = signToken(admin._id);
+
+    logger.info(`New admin registered: ${admin.email}`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Welcome!',
+      token,
+      admin: {
+        id: admin._id,
+        email: admin.email,
+        name: admin.name,
+        role: 'admin',
+      },
+      user: {
+        id: admin._id,
+        email: admin.email,
+        name: admin.name,
+        role: 'admin',
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * POST /api/auth/login
  */
 exports.login = async (req, res, next) => {
@@ -39,6 +90,14 @@ exports.login = async (req, res, next) => {
         id: admin._id,
         email: admin.email,
         name: admin.name,
+        role: 'admin',
+        lastLogin: admin.lastLogin,
+      },
+      user: {
+        id: admin._id,
+        email: admin.email,
+        name: admin.name,
+        role: 'admin',
         lastLogin: admin.lastLogin,
       },
     });

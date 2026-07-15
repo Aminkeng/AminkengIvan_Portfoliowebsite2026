@@ -6,13 +6,16 @@ let transporter;
 const getTransporter = () => {
   if (transporter) return transporter;
 
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
   transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT) || 587,
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
   });
 
@@ -24,10 +27,11 @@ const getTransporter = () => {
  */
 const sendContactNotification = async ({ name, email, subject, message }) => {
   const transport = getTransporter();
-  const recipient = process.env.CONTACT_RECIPIENT || process.env.SMTP_USER;
+  const recipient = process.env.CONTACT_RECIPIENT || process.env.SMTP_USER || process.env.EMAIL_USER;
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 
   const mailOptions = {
-    from: `"Portfolio Contact" <${process.env.SMTP_USER}>`,
+    from: `"Portfolio Contact" <${smtpUser}>`,
     to: recipient,
     replyTo: email,
     subject: `[Portfolio] New message from ${name}: ${subject}`,
@@ -72,9 +76,10 @@ const sendContactNotification = async ({ name, email, subject, message }) => {
  */
 const sendContactAutoReply = async ({ name, email }) => {
   const transport = getTransporter();
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 
   const mailOptions = {
-    from: `"BigJones Portfolio" <${process.env.SMTP_USER}>`,
+    from: `"BigJones Portfolio" <${smtpUser}>`,
     to: email,
     subject: "Thanks for reaching out!",
     html: `

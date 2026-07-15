@@ -32,9 +32,11 @@ exports.submitContact = async (req, res, next) => {
     ])
       .then((results) => {
         const emailSent = results.every((r) => r.status === 'fulfilled');
-        if (emailSent) {
-          Contact.findByIdAndUpdate(contact._id, { emailSent: true }).exec();
-        } else {
+        if (emailSent && typeof Contact.findByIdAndUpdate === 'function') {
+          Contact.findByIdAndUpdate(contact._id, { emailSent: true }).exec().catch((err) => {
+            logger.error(`Failed to mark contact as emailed: ${err.message}`);
+          });
+        } else if (!emailSent) {
           results
             .filter((r) => r.status === 'rejected')
             .forEach((r) => logger.error(`Email error: ${r.reason?.message}`));

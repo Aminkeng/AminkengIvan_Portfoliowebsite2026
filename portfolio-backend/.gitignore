@@ -4,3 +4,8 @@ logs/
 coverage/
 dist/
 *.log
+
+frontend/node_modules/
+portfolio-backend/node_modules/
+portfolio-backend/.env
+.DS_Store

@@ -6,21 +6,60 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
+const Admin = require('./models/Admin');
 const logger = require('./utils/logger');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
 
-// Connect to database
-connectDB();
-
 const app = express();
+
+const ensureAdminAccount = async () => {
+  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+    logger.warn('ADMIN_EMAIL or ADMIN_PASSWORD is not configured. Default admin account will not be created.');
+    return;
+  }
+
+  const existingAdmin = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
+  if (existingAdmin) {
+    logger.info('Default admin account already exists.');
+    return;
+  }
+
+  await Admin.create({
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
+    name: process.env.ADMIN_NAME || 'Admin',
+  });
+  logger.info(`Default admin created: ${process.env.ADMIN_EMAIL}`);
+};
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || `${process.env.FRONTEND_URL || 'http://localhost:5173'},http://localhost:3000`)
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  const normalized = origin.replace(/\/$/, '');
+  return (
+    allowedOrigins.includes(normalized) ||
+    /^http:\/\/localhost:\d+$/.test(normalized) ||
+    /^http:\/\/127\.0\.0\.1:\d+$/.test(normalized)
+  );
+};
 
 // Security middleware
 app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
@@ -43,7 +82,11 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/projects', require('./routes/projects'));
 
-// Health check
+// Health checks
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
@@ -54,17 +97,39 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+let server;
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  logger.error(`Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => {
+const startServer = async () => {
+  await connectDB();
+  await ensureAdminAccount();
+
+  server = app.listen(PORT, () => {
+    logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.error(`Port ${PORT} is already in use. Stop the existing process or set a different PORT in .env.`);
+      process.exit(1);
+    }
+    throw err;
+  });
+
+  process.on('unhandledRejection', (err, promise) => {
+    logger.error(`Error: ${err.message}`);
+    if (server) {
+      server.close(() => {
+        process.exit(1);
+      });
+    }
+  });
+};
+
+if (require.main === module) {
+  startServer().catch((err) => {
+    logger.error(`Server failed to start: ${err.message}`);
     process.exit(1);
   });
-});
+}
 
 module.exports = app;
