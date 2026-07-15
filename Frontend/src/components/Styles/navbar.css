@@ -1,0 +1,402 @@
+/* ═══════════════════════════════════════════
+   navbar.css
+   Breakpoints:
+     > 992px  → desktop  : centred links + desktop login visible
+     ≤ 992px  → hamburger: slide-down panel, mobile login inside menu
+     ≤ 420px  → small    : tighter sizing
+   ═══════════════════════════════════════════ */
+
+/* ── Bar ── */
+.menu-bar {
+  background-color: #4407a9;
+  height: 90px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: height 0.3s ease, background-color 0.3s ease;
+}
+
+.menu-bar.scrolled {
+  background-color: transparent;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  height: 70px;
+}
+
+/* Tint nav links only when scrolled — NOT login/hamburger buttons */
+.menu-bar.scrolled .menu-list > li > a,
+.menu-bar.scrolled .dropdown-toggle {
+  color: rgb(93, 193, 255);
+}
+
+/* ── Container ── */
+.navbar-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  position: relative;
+}
+
+/* ── Logo ── */
+.logo {
+  color: #ffffff;
+  font-size: 28px;
+  margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  z-index: 2;
+}
+.logo span { color: #f9004d; }
+
+/* ══════════════════════════════════════════
+   DESKTOP NAV LINKS  (> 992px)
+   Absolutely centred, independent of logo
+   and login button widths.
+   ══════════════════════════════════════════ */
+.menu-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.menu-list > li {
+  margin: 0 14px;
+  position: relative;
+}
+
+/* Mobile-login hidden on desktop */
+.mobile-login-wrapper {
+  display: none;
+}
+
+/* ── Link & toggle base ── */
+.menu-list > li > a,
+.dropdown-toggle {
+  font-size: 16px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.25s ease;
+  display: flex;
+  align-items: center;
+  padding: 8px 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.menu-list > li > a:hover,
+.dropdown-toggle:hover { color: #f9004d; }
+
+.menu-list > li > a.active {
+  color: #f9004d;
+  border: 1px solid #f9004d;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-weight: 600;
+}
+
+/* ══════════════════════
+   DROPDOWN — desktop
+   ══════════════════════ */
+.dropdown { position: relative; }
+
+.dropdown-toggle {
+  gap: 6px;
+  color: #ffffff;
+}
+
+.caret {
+  font-size: 12px;
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+.caret.rotated { transform: rotate(180deg); }
+
+/* Panel hidden by default */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background-color: #4407a9;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  border-radius: 6px;
+  z-index: 9999;
+  padding: 6px 0;
+}
+
+/* Hover bridge — prevents gap flicker */
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+}
+
+/* Arrow */
+.dropdown-menu::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #4407a9;
+}
+
+.dropdown-menu a {
+  padding: 11px 18px;
+  text-decoration: none;
+  display: block;
+  color: #ffffff;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+}
+.dropdown-menu a:hover   { background-color: #5a0ed6; color: #f9004d; }
+.dropdown-menu a.active  { background-color: #5a0ed6; color: #f9004d; font-weight: 600; }
+
+/* Open via hover (desktop) OR JS .active class */
+.dropdown:hover > .dropdown-menu,
+.dropdown.active > .dropdown-menu { display: block; }
+
+/* ══════════════════════
+   AUTH BUTTON — desktop
+   ══════════════════════ */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.login-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  min-width: 90px;
+  border: 1.8px solid #2ecc40;
+  background: linear-gradient(to right, transparent, #2ecc40);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.login-btn:hover {
+  transform: scale(0.95);
+  background: #4cd964;
+}
+.logout-btn {
+  border-color: #e74c3c;
+  background: linear-gradient(to right, transparent, #e74c3c);
+}
+.logout-btn:hover {
+  transform: scale(0.95);
+  background: #ff4d4d;
+}
+
+/* ══════════════════════════════════
+   HAMBURGER — hidden on desktop
+   ══════════════════════════════════ */
+.mobile-menu-btn {
+  display: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 15px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.menu-text {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  height: 2.5px;
+  background-color: #ffffff;
+  border-radius: 3px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hamburger.active .bar:nth-child(1) { transform: translateY(7.75px)  rotate(45deg);  }
+.hamburger.active .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.active .bar:nth-child(3) { transform: translateY(-7.75px) rotate(-45deg); }
+
+/* ══════════════════════════════════════════════════════
+   HAMBURGER MODE  ≤ 992px
+   Everything below this breakpoint uses the slide-down
+   panel. This single block covers both tablet & mobile.
+   ══════════════════════════════════════════════════════ */
+@media screen and (max-width: 992px) {
+
+  /* Show hamburger, hide desktop login */
+  .mobile-menu-btn { display: flex; }
+  .auth-buttons    { display: none; }
+
+  /* ── Slide-down panel ── */
+  .menu-list {
+    /* Reset desktop absolute-centering */
+    position: absolute;
+    top: 90px;
+    left: 0;
+    transform: none;
+    width: 100%;
+    /* Panel behaviour */
+    flex-direction: column;
+    align-items: stretch;
+    background-color: #4407a9;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s ease;
+    z-index: 999;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .menu-bar.scrolled .menu-list {
+    top: 70px;
+  }
+
+  .menu-list.active {
+    max-height: 800px; /* enough for all items + open dropdown + login */
+    padding-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+
+  /* Full-width stacked items */
+  .menu-list > li {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .menu-list > li:last-child { border-bottom: none; }
+
+  .menu-list > li > a,
+  .dropdown-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 20px;
+    width: 100%;
+    font-size: 16px;
+    color: #ffffff;
+  }
+
+  .menu-list > li > a.active {
+    border-radius: 0;
+    border: none;
+    border-left: 3px solid #f9004d;
+    padding: 15px 20px;
+    background-color: rgba(249,0,77,0.08);
+  }
+
+  /* ── Dropdown accordion inside the panel ── */
+  .dropdown-menu {
+    position: static !important; /* override desktop absolute */
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    box-shadow: none;
+    border-radius: 0;
+    background-color: #380a8a;
+    min-width: unset;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    /* Accordion: always display:block, height controlled by max-height */
+    display: block !important;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  /* Kill pseudo-elements inside the panel */
+  .dropdown-menu::before,
+  .dropdown-menu::after { display: none !important; }
+
+  /* Hover must NOT open on mobile/tablet — force closed */
+  .dropdown:hover > .dropdown-menu { max-height: 0 !important; }
+
+  /* JS .active class opens accordion */
+  .dropdown.active > .dropdown-menu { max-height: 300px !important; }
+
+  .dropdown-menu a {
+    padding: 13px 20px;
+    text-align: center;
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    white-space: normal;
+  }
+  .dropdown-menu a:last-child  { border-bottom: none; }
+  .dropdown-menu a:hover,
+  .dropdown-menu a.active      { background-color: #4a0dc0; color: #f9004d; }
+
+  .dropdown-toggle { justify-content: center; }
+
+  /* ── Mobile login — shown inside the panel ── */
+  .mobile-login-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 18px 20px 8px;
+    border-bottom: none;
+  }
+
+  .mobile-login-wrapper .login-btn {
+    width: 60%;
+    max-width: 200px;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+/* ══════════════════
+   SMALL MOBILE ≤ 420px
+   ══════════════════ */
+@media screen and (max-width: 420px) {
+  .logo { font-size: 20px; }
+  .menu-text { display: none; }
+  .mobile-menu-btn { padding: 10px 8px; }
+}

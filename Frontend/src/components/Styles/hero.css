@@ -1,0 +1,189 @@
+/* ═══════════════════════════════════════════
+   hero.css  —  fully responsive
+   Strategy:
+   • .hero height is driven by the image, not a
+     fixed vh value — no empty space below.
+   • Text uses bottom-% anchoring so it always
+     sits on the image at every screen width.
+   • Font sizes use clamp() — fluid between
+     the smallest and largest viewport.
+   • hero1 (landscape) shown above 480px.
+   • hero2 (portrait/mobile) shown at ≤ 480px.
+   ═══════════════════════════════════════════ */
+
+/* ── Outer wrapper — offsets fixed navbar ── */
+.welcome {
+  width: 100%;
+  margin-top: 90px; /* matches navbar height */
+  overflow: hidden;
+}
+
+.menu-bar.scrolled ~ * .welcome,
+.menu-bar.scrolled + * .welcome {
+  margin-top: 70px; /* matches scrolled navbar height */
+}
+
+/* ── Hero container — sized by image ── */
+.hero {
+  position: relative;  /* anchor for absolute text */
+  width: 100%;
+  line-height: 0;      /* kills phantom gap below inline images */
+}
+
+/* ══════════════════════════════
+   IMAGES
+   ══════════════════════════════ */
+
+/* Desktop / tablet image */
+.hero1 {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 88vh;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* Mobile portrait image — hidden by default */
+.hero2 {
+  display: none;
+  width: 100%;
+  height: auto;
+  max-height: 88vh;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* ══════════════════════════════
+   TEXT OVERLAY
+   Anchored by bottom-% so the
+   text always rides on the image
+   regardless of its rendered height.
+   ══════════════════════════════ */
+.hero h3 {
+  position: absolute;
+  bottom: 62%;
+  left: 0;
+  width: 100%;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: clamp(0.75rem, 1.5vw, 1.1rem);
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  animation: fadeInUp 1s ease-out both;
+  /* prevent text from ever sitting outside the image */
+  padding: 0 16px;
+}
+
+.hero h1 {
+  position: absolute;
+  bottom: 30%;
+  left: 0;
+  width: 100%;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: clamp(1.6rem, 5.5vw, 4.4rem);
+  font-weight: 400;
+  text-align: center;
+  line-height: 1.1;
+  animation: fadeInUp 1s ease-out 0.15s both;
+  padding: 0 12px;
+}
+
+/* ══════════════════
+   ANIMATIONS
+   ══════════════════ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════
+   TABLET  ≤ 768px
+   Image is narrower — text needs to be
+   slightly more compact.
+   ══════════════════════════════════════ */
+@media screen and (max-width: 768px) {
+  .welcome {
+    margin-top: 90px;
+  }
+
+  .hero h3 {
+    bottom: 20%;
+    font-size: clamp(0.65rem, 2.2vw, 0.95rem);
+    letter-spacing: 0.05em;
+  }
+
+  .hero h1 {
+    bottom: 6%;
+    font-size: clamp(1.3rem, 5vw, 2.6rem);
+  }
+}
+
+/* ══════════════════════════════════════
+   MOBILE  ≤ 480px
+   Swap to portrait image (hero2).
+   Text stays bottom-anchored.
+   ══════════════════════════════════════ */
+@media screen and (max-width: 480px) {
+  .welcome {
+    margin-top: 90px;
+  }
+
+  /* Swap images */
+  .hero1 { display: none; }
+  .hero2 { display: block; }
+
+  .hero h3 {
+    bottom: 18%;
+    font-size: clamp(0.6rem, 3vw, 0.85rem);
+    letter-spacing: 0.04em;
+  }
+
+  .hero h1 {
+    bottom: 5%;
+    font-size: clamp(1.1rem, 6.5vw, 1.8rem);
+    line-height: 1.15;
+  }
+}
+
+/* ══════════════════════════════════════
+   VERY SMALL  ≤ 360px
+   ══════════════════════════════════════ */
+@media screen and (max-width: 360px) {
+  .hero h3 {
+    bottom: 16%;
+    font-size: 0.6rem;
+  }
+
+  .hero h1 {
+    bottom: 4%;
+    font-size: clamp(1rem, 7vw, 1.4rem);
+  }
+}

@@ -1,0 +1,140 @@
+/* figure.css */
+
+/* ── Outer flex grid ── */
+.figure1 {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 5rem;
+  background-color: rgb(198, 180, 166);
+  padding: 2rem 1rem;
+}
+
+/* ── Individual card ── */
+figure {
+  width: clamp(260px, 30%, 320px);
+  animation: fadeInUp 1s ease-out;
+}
+
+.fig1 {
+  margin: 0;
+  margin-bottom: 1rem;
+  justify-items: center;
+  border-radius: 15px;
+  box-shadow: 0px 1px 4px;
+  background-color: rgb(118, 65, 22);
+  transition: transform 0.2s linear;
+  overflow: hidden;
+}
+
+.fig1:hover {
+  transform: scale(1.05);
+}
+
+/* ── Image ── */
+#img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 13px;
+  object-fit: cover;
+  cursor: pointer;
+  box-shadow: 0 5px 15px black;
+  border-radius: 15px 15px 0 0;
+}
+
+/* ── Caption body ── */
+.body {
+  padding: 0 12px 12px;
+  flex-wrap: wrap;
+}
+
+.body-link {
+  width: 100%;
+}
+
+/* ── Link text ── */
+#link {
+  font-family: sans-serif;
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  display: block;
+  transition: color 0.5s;
+  word-break: break-word;
+  animation: fadeInUp 1s ease-out;
+}
+
+#link:hover {
+  color: #10f3ff;
+}
+
+#link span {
+  font-size: clamp(13px, 2vw, 17px);
+  font-weight: 400;
+  font-family: sans-serif;
+  display: block;
+  margin-top: 4px;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ── Tablet ── */
+@media screen and (max-width: 768px) {
+  .figure1 {
+    gap: 1rem;
+    padding: 1.5rem 0.75rem;
+    margin-bottom: 3rem;
+  }
+
+  figure {
+    width: clamp(240px, 80vw, 320px);
+  }
+}
+
+/* ── Mobile ── */
+@media screen and (max-width: 480px) {
+  .figure1 {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  figure {
+    width: 92vw;
+    max-width: 340px;
+  }
+
+  .fig1:hover {
+    transform: none; /* disable scale on touch */
+  }
+}
+
+/* ── Very small screens ── */
+@media only screen and (max-width: 340px) {
+  #link {
+    font-size: 14px;
+  }
+}
