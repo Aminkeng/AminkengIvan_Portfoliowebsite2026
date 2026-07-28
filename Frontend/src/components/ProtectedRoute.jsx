@@ -10,9 +10,9 @@ function getStoredUser() {
 
 function ProtectedRoute({ children, requireAdmin = false }) {
   const location = useLocation();
-  const isAuthenticated = Boolean(localStorage.getItem('authToken'));
   const user = getStoredUser();
-  const isAdmin = Boolean(user?.role === 'admin' || user?.isAdmin);
+  const isAuthenticated = Boolean(localStorage.getItem('authToken') && user);
+  const isAdmin = Boolean(user?.role === 'admin' || user?.isAdmin === true);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;

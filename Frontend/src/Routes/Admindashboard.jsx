@@ -410,10 +410,10 @@ export default function AdminDashboard() {
 
             {/* Stat cards */}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
-              <StatCard icon="ti-folder" label="TOTAL PROJECTS" value={projects.length} sub="6 published" color={COLORS.blue} />
-              <StatCard icon="ti-mail" label="MESSAGES" value={contacts.length} sub={`${unreadCount} unread`} color={COLORS.purple} />
-              <StatCard icon="ti-eye" label="PORTFOLIO VIEWS" value="4,821" sub="Last 12 months" color={COLORS.teal} />
-              <StatCard icon="ti-star" label="FEATURED" value={projects.filter(p=>p.featured).length} sub="projects" color={COLORS.amber} />
+              <StatCard icon="ti-folder" label="TOTAL PROJECTS" value={stats.projects} sub={`${projects.filter(p => p.published).length} published`} color={COLORS.blue} />
+              <StatCard icon="ti-mail" label="MESSAGES" value={stats.contacts} sub={`${stats.unread} unread`} color={COLORS.purple} />
+              <StatCard icon="ti-eye" label="PORTFOLIO VIEWS" value={stats.views.toLocaleString()} sub="Last 12 months" color={COLORS.teal} />
+              <StatCard icon="ti-star" label="FEATURED" value={projects.filter(p => p.featured).length} sub="projects" color={COLORS.amber} />
             </div>
 
             {/* Chart + Activity */}

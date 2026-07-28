@@ -95,7 +95,7 @@ app.get('/api/health', (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
 
 let server;
 
@@ -109,8 +109,14 @@ const startServer = async () => {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      logger.error(`Port ${PORT} is already in use. Stop the existing process or set a different PORT in .env.`);
-      process.exit(1);
+      const fallbackPort = PORT + 1;
+      logger.warn(`Port ${PORT} is already in use. Retrying on ${fallbackPort}.`);
+      server.close(() => {
+        server = app.listen(fallbackPort, () => {
+          logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${fallbackPort}`);
+        });
+      });
+      return;
     }
     throw err;
   });

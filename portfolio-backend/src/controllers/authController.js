@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const Admin = require('../models/Admin');
+const User = require('../models/User');
 const logger = require('../utils/logger');
 
-const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
+const signToken = (id, role = 'admin') =>
+  jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 
@@ -33,13 +34,13 @@ exports.register = async (req, res, next) => {
       name: name || 'Admin',
     });
 
-    const token = signToken(admin._id);
+    const token = signToken(admin._id, 'admin');
 
     logger.info(`New admin registered: ${admin.email}`);
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Welcome!',
+      message: 'Admin registration successful! Welcome!',
       token,
       admin: {
         id: admin._id,
@@ -60,6 +61,50 @@ exports.register = async (req, res, next) => {
 };
 
 /**
+ * POST /api/auth/public-signup
+ */
+exports.publicSignup = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { email, password, name } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'Email already registered' });
+    }
+
+    const user = await User.create({
+      email,
+      password,
+      name: name || 'User',
+      role: 'user',
+    });
+
+    const token = signToken(user._id, 'user');
+
+    logger.info(`New public user registered: ${user.email}`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Welcome!',
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: 'user',
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * POST /api/auth/login
  */
 exports.login = async (req, res, next) => {
@@ -72,33 +117,56 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const admin = await Admin.findOne({ email }).select('+password');
 
-    if (!admin || !(await admin.comparePassword(password))) {
+    if (admin && (await admin.comparePassword(password))) {
+      admin.lastLogin = new Date();
+      await admin.save({ validateBeforeSave: false });
+
+      const token = signToken(admin._id, 'admin');
+
+      logger.info(`Admin login: ${admin.email}`);
+
+      return res.json({
+        success: true,
+        token,
+        admin: {
+          id: admin._id,
+          email: admin.email,
+          name: admin.name,
+          role: 'admin',
+          lastLogin: admin.lastLogin,
+        },
+        user: {
+          id: admin._id,
+          email: admin.email,
+          name: admin.name,
+          role: 'admin',
+          lastLogin: admin.lastLogin,
+        },
+      });
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    admin.lastLogin = new Date();
-    await admin.save({ validateBeforeSave: false });
+    user.lastLogin = new Date();
+    await user.save({ validateBeforeSave: false });
 
-    const token = signToken(admin._id);
+    const token = signToken(user._id, 'user');
 
-    logger.info(`Admin login: ${admin.email}`);
+    logger.info(`Public user login: ${user.email}`);
 
-    res.json({
+    return res.json({
       success: true,
       token,
-      admin: {
-        id: admin._id,
-        email: admin.email,
-        name: admin.name,
-        role: 'admin',
-        lastLogin: admin.lastLogin,
-      },
       user: {
-        id: admin._id,
-        email: admin.email,
-        name: admin.name,
-        role: 'admin',
-        lastLogin: admin.lastLogin,
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: 'user',
+        lastLogin: user.lastLogin,
       },
     });
   } catch (err) {

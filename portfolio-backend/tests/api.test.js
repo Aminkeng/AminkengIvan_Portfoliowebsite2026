@@ -16,6 +16,24 @@ jest.mock('../src/models/Project', () => ({
 jest.mock('../src/models/Contact', () => ({
   create: jest.fn().mockResolvedValue({ _id: 'mock-id', email: 'test@test.com' }),
 }));
+jest.mock('../src/models/Admin', () => ({
+  findOne: jest.fn().mockResolvedValue(null),
+  create: jest.fn().mockResolvedValue({
+    _id: 'admin-id',
+    email: 'admin@example.com',
+    name: 'Admin',
+    comparePassword: jest.fn().mockResolvedValue(true),
+  }),
+}));
+jest.mock('../src/models/User', () => ({
+  findOne: jest.fn().mockResolvedValue(null),
+  create: jest.fn().mockResolvedValue({
+    _id: 'user-id',
+    email: 'public@example.com',
+    name: 'Public User',
+    comparePassword: jest.fn().mockResolvedValue(true),
+  }),
+}));
 jest.mock('../src/utils/email', () => ({
   sendContactNotification: jest.fn().mockResolvedValue({}),
   sendContactAutoReply: jest.fn().mockResolvedValue({}),
@@ -67,6 +85,29 @@ describe('Auth API', () => {
   it('POST /api/auth/login fails without credentials', async () => {
     const res = await request(app).post('/api/auth/login').send({});
     expect(res.statusCode).toBe(400);
+  });
+
+  it('POST /api/auth/public-signup creates a public user role', async () => {
+    const res = await request(app).post('/api/auth/public-signup').send({
+      name: 'Public User',
+      email: 'public@example.com',
+      password: 'password123',
+    });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.user.role).toBe('user');
+  });
+
+  it('POST /api/auth/register requires an authenticated admin token', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      name: 'Admin',
+      email: 'admin@example.com',
+      password: 'password123',
+    });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.success).toBe(false);
   });
 });
 

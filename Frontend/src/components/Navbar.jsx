@@ -9,8 +9,14 @@ function Navbar({ isLogin, setIsLogin }) {
     const location                         = useLocation();
     const navigate                         = useNavigate();
     const navRef                           = useRef(null);
-    const storedUser                       = JSON.parse(localStorage.getItem('user') || 'null');
-    const isAdmin                          = Boolean(storedUser?.role === 'admin' || storedUser?.isAdmin);
+    const storedUser = (() => {
+        try {
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        } catch {
+            return null;
+        }
+    })();
+    const isAdmin                          = Boolean(storedUser?.role === 'admin' || storedUser?.isAdmin === true);
 
     /* ── Scroll detection ── */
     useEffect(() => {

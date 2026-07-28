@@ -60,11 +60,11 @@ function AuthPage({ setIsLogin }) {
         setIsLogin(true);
       }
 
-      const loggedInUser = data.user || data.admin || { role: 'admin' };
+      const loggedInUser = data.user || data.admin || { role: 'user' };
 
       // Store token in localStorage
       localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'admin' }));
+      localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'user' }));
 
       // Reset form on successful submission
       alert(data.message || 'Login successful!');
@@ -104,7 +104,7 @@ function AuthPage({ setIsLogin }) {
     }
 
     try {
-      const endpoint = `${API_URL}/auth/register`;
+      const endpoint = `${API_URL}/auth/public-signup`;
       const payload = { name: signupName, email: signupEmail, password: signupPassword };
 
       const response = await fetch(endpoint, {
@@ -127,11 +127,11 @@ function AuthPage({ setIsLogin }) {
         setIsLogin(true);
       }
 
-      const loggedInUser = data.user || data.admin || { role: 'admin' };
+      const loggedInUser = data.user || data.admin || { role: 'user' };
 
       // Store token in localStorage
       localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'admin' }));
+      localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'user' }));
 
       // Reset form on successful submission
       alert(data.message || 'Registration successful!');
