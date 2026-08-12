@@ -178,13 +178,15 @@ exports.login = async (req, res, next) => {
  * GET /api/auth/me  (protected)
  */
 exports.getMe = async (req, res) => {
+  const account = req.user || req.admin;
   res.json({
     success: true,
-    admin: {
-      id: req.admin._id,
-      email: req.admin.email,
-      name: req.admin.name,
-      lastLogin: req.admin.lastLogin,
+    user: {
+      id: account._id,
+      email: account.email,
+      name: account.name,
+      role: account.role || (req.admin ? 'admin' : 'user'),
+      lastLogin: account.lastLogin,
     },
   });
 };
@@ -202,15 +204,17 @@ exports.changePassword = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'New password must be at least 8 characters' });
     }
 
-    const admin = await Admin.findById(req.admin._id).select('+password');
-    if (!(await admin.comparePassword(currentPassword))) {
+    const account = req.user || req.admin;
+    const Model = account.role === 'user' ? User : Admin;
+    const record = await Model.findById(account._id).select('+password');
+    if (!(await record.comparePassword(currentPassword))) {
       return res.status(401).json({ success: false, message: 'Current password is incorrect' });
     }
 
-    admin.password = newPassword;
-    await admin.save();
+    record.password = newPassword;
+    await record.save();
 
-    logger.info(`Admin password changed: ${admin.email}`);
+    logger.info(`Password changed: ${record.email}`);
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
     next(err);

@@ -36,7 +36,7 @@ const portfolioItems = [
     image: videoedit,
     title: "Video Editing",
     description: "Professional video editing services to create engaging content for your audience.",
-    link: "./ProjectPage/Videopro.jsx"
+    link: "/videopro"
   },
   {
     id: 5,

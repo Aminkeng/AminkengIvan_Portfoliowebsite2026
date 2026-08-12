@@ -1,18 +1,29 @@
 const app = require('./server');
-const connectDB = require('./config/db');
+const logger = require('./utils/logger');
 
-let connPromise = null;
+let initializationPromise = null;
+
+const isHealthCheck = (url = '') => /^\/(?:api\/)?health\/?(?:\?|$)/.test(url);
 
 module.exports = async (req, res) => {
+  if (isHealthCheck(req.url)) {
+    return app(req, res);
+  }
+
   try {
-    if (!connPromise) {
-      connPromise = connectDB();
+    if (!initializationPromise) {
+      initializationPromise = app.initialize().catch((err) => {
+        initializationPromise = null;
+        throw err;
+      });
     }
-    await connPromise;
+    await initializationPromise;
   } catch (err) {
-    console.error('DB connection error in Vercel serverless wrapper:', err);
-    res.status(500).json({ error: 'Database connection failure' });
-    return;
+    logger.error(`API initialization failed: ${err.message}`);
+    return res.status(503).json({
+      success: false,
+      message: 'API service is temporarily unavailable',
+    });
   }
 
   return app(req, res);

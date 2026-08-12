@@ -74,7 +74,7 @@ const PortfolioDashboard = () => {
       setCurrentProject((prev) => (prev + 1) % recentProjects.length);
     }, 3000);
     return () => clearInterval(interval);
-  });
+  }, []);
 
   const tabStyles = {
     container: {
@@ -159,7 +159,7 @@ const PortfolioDashboard = () => {
                 graphic design, video editing, web development, and web design. With over 6 years 
                 of experience, I help businesses create compelling digital experiences.
               </p>
-              <Link to='/Portfolio' style={{
+              <Link to='/portfolio' style={{
                 textDecoration:'none',
                 width:'1.5rem',
               }}>

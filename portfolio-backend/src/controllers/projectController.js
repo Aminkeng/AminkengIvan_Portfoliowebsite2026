@@ -1,5 +1,14 @@
 const Project = require('../models/Project');
 const logger = require('../utils/logger');
+const mongoose = require('mongoose');
+
+const isValidId = (id) => mongoose.isValidObjectId(id);
+
+const notFound = (msg) => {
+  const err = new Error(msg);
+  err.statusCode = 404;
+  return err;
+};
 
 // ── Public ──────────────────────────────────────────────────────────────────
 
@@ -44,12 +53,9 @@ exports.getProjects = async (req, res, next) => {
  */
 exports.getProject = async (req, res, next) => {
   try {
+    if (!isValidId(req.params.id)) return next(notFound('Project not found'));
     const project = await Project.findOne({ _id: req.params.id, published: true });
-    if (!project) {
-      const err = new Error('Project not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!project) return next(notFound('Project not found'));
     res.json({ success: true, data: project });
   } catch (err) {
     next(err);
@@ -88,15 +94,12 @@ exports.createProject = async (req, res, next) => {
  */
 exports.updateProject = async (req, res, next) => {
   try {
+    if (!isValidId(req.params.id)) return next(notFound('Project not found'));
     const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
-    if (!project) {
-      const err = new Error('Project not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!project) return next(notFound('Project not found'));
     logger.info(`Project updated: ${project._id}`);
     res.json({ success: true, data: project });
   } catch (err) {
@@ -109,12 +112,9 @@ exports.updateProject = async (req, res, next) => {
  */
 exports.deleteProject = async (req, res, next) => {
   try {
+    if (!isValidId(req.params.id)) return next(notFound('Project not found'));
     const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) {
-      const err = new Error('Project not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!project) return next(notFound('Project not found'));
     logger.info(`Project deleted: ${req.params.id}`);
     res.json({ success: true, message: 'Project deleted' });
   } catch (err) {

@@ -29,7 +29,7 @@ function About(){
                                 <span className="stat-label">Clients</span>
                             </div>
                         </div>
-                        <Link to="/Contact"><button type="button" className="butn">
+                        <Link to="/contact"><button type="button" className="butn">
                             <span>Let's Talk</span>
                             <div className="button-bg"></div>
                         </button>

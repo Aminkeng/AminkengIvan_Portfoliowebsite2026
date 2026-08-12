@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const Contact = require('../models/Contact');
-const { protect } = require('../middleware/auth');
+const { protectAdmin } = require('../middleware/auth');
 
 /**
  * GET /api/admin/dashboard
  * Returns summary stats for the admin dashboard.
  */
-router.get('/dashboard', protect, async (req, res, next) => {
+router.get('/dashboard', protectAdmin, async (req, res, next) => {
   try {
     const [
       totalProjects,
@@ -46,10 +46,10 @@ const {
   deleteProject,
 } = require('../controllers/projectController');
 
-router.get('/projects', protect, getAllProjects);
-router.post('/projects', protect, createProject);
-router.put('/projects/:id', protect, updateProject);
-router.delete('/projects/:id', protect, deleteProject);
+router.get('/projects', protectAdmin, getAllProjects);
+router.post('/projects', protectAdmin, createProject);
+router.put('/projects/:id', protectAdmin, updateProject);
+router.delete('/projects/:id', protectAdmin, deleteProject);
 
 // Admin contact routes (alias)
 const {
@@ -59,9 +59,9 @@ const {
   deleteContact,
 } = require('../controllers/contactController');
 
-router.get('/contacts', protect, getContacts);
-router.get('/contacts/:id', protect, getContact);
-router.patch('/contacts/:id/status', protect, updateContactStatus);
-router.delete('/contacts/:id', protect, deleteContact);
+router.get('/contacts', protectAdmin, getContacts);
+router.get('/contacts/:id', protectAdmin, getContact);
+router.patch('/contacts/:id/status', protectAdmin, updateContactStatus);
+router.delete('/contacts/:id', protectAdmin, deleteContact);
 
 module.exports = router;

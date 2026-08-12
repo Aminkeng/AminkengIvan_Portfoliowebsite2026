@@ -22,13 +22,19 @@ import AdminDashboard from './Routes/Admindashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css'
 
+const hasStoredSession = () => {
+  try {
+    return Boolean(localStorage.getItem('authToken') && JSON.parse(localStorage.getItem('user') || 'null'));
+  } catch {
+    return false;
+  }
+};
+
 function App() {
-const [isLogin, setIsLogin] = useState(() => Boolean(localStorage.getItem('authToken')));
+const [isLogin, setIsLogin] = useState(hasStoredSession);
 
 useEffect(() => {
-  if (localStorage.getItem('authToken')) {
-    setIsLogin(true);
-  }
+  setIsLogin(hasStoredSession());
 }, []);
 
 
@@ -59,6 +65,7 @@ useEffect(() => {
                path="/admindashboard"
                element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>}
              />
+             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
     </Router>

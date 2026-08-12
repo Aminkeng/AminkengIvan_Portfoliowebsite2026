@@ -23,7 +23,7 @@ function AuthPage({ setIsLogin }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
+  const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -48,29 +48,28 @@ function AuthPage({ setIsLogin }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setErrorMessage(data.message || 'An error occurred');
-        setLoading(false);
+        setErrorMessage(data.message || data.errors?.[0]?.msg || 'An error occurred');
         return;
       }
 
-      if (response.ok && setIsLogin) {
-        setIsLogin(true);
+      const loggedInUser = data.user || data.admin;
+      if (!data.token || !loggedInUser) {
+        setErrorMessage('The server returned an invalid login response.');
+        return;
       }
-
-      const loggedInUser = data.user || data.admin || { role: 'user' };
 
       // Store token in localStorage
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'user' }));
+      if (setIsLogin) setIsLogin(true);
 
       // Reset form on successful submission
-      alert(data.message || 'Login successful!');
       setLoginEmail('');
       setLoginPassword('');
-      navigate('/home');
+      navigate(loggedInUser.role === 'admin' ? '/admindashboard' : '/home');
     } catch (error) {
       console.error('Error:', error);
       setErrorMessage('Network error. Please try again.');
@@ -115,26 +114,25 @@ function AuthPage({ setIsLogin }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setErrorMessage(data.message || 'An error occurred during registration');
-        setLoading(false);
+        setErrorMessage(data.message || data.errors?.[0]?.msg || 'An error occurred during registration');
         return;
       }
 
-      if (response.ok && setIsLogin) {
-        setIsLogin(true);
+      const loggedInUser = data.user || data.admin;
+      if (!data.token || !loggedInUser) {
+        setErrorMessage('The server returned an invalid registration response.');
+        return;
       }
-
-      const loggedInUser = data.user || data.admin || { role: 'user' };
 
       // Store token in localStorage
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify({ ...loggedInUser, role: loggedInUser.role || 'user' }));
+      if (setIsLogin) setIsLogin(true);
 
       // Reset form on successful submission
-      alert(data.message || 'Registration successful!');
       setSignupName('');
       setSignupEmail('');
       setSignupPassword('');

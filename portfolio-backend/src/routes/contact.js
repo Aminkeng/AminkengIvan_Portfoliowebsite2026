@@ -8,7 +8,7 @@ const {
   updateContactStatus,
   deleteContact,
 } = require('../controllers/contactController');
-const { protect } = require('../middleware/auth');
+const { protectAdmin } = require('../middleware/auth');
 const { contactLimiter } = require('../middleware/rateLimiter');
 
 // ── Public ──────────────────────────────────────────────
@@ -22,7 +22,7 @@ const contactValidation = [
 router.post('/', contactLimiter, contactValidation, submitContact);
 
 // ── Admin (protected) ───────────────────────────────────
-router.use(protect);
+router.use(protectAdmin);
 router.get('/', getContacts);
 router.get('/:id', getContact);
 router.patch('/:id/status', updateContactStatus);

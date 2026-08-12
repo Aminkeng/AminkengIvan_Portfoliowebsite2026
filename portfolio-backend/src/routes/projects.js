@@ -8,14 +8,14 @@ const {
   updateProject,
   deleteProject,
 } = require('../controllers/projectController');
-const { protect } = require('../middleware/auth');
+const { protectAdmin } = require('../middleware/auth');
 
 // ── Public ──────────────────────────────────────────────
 router.get('/', getProjects);
 router.get('/:id', getProject);
 
 // ── Admin (protected) ───────────────────────────────────
-router.use(protect);
+router.use(protectAdmin);
 router.get('/admin/all', getAllProjects);
 router.post('/', createProject);
 router.put('/:id', updateProject);

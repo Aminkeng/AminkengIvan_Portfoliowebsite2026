@@ -10,13 +10,15 @@ function Hero(){
         <div className="hero">
             <img 
                  src={Portfolio}
-                 className="hero1" 
+                 className="hero1"
+                 alt="Creative portfolio workspace"
             />
 
             <div >
             <img 
                  src={Mobilehero}
-                 className="hero2" />
+                 className="hero2"
+                 alt="Portfolio preview on a mobile device" />
             </div>
       
             <h3>HOW TO BE AN AMAZING DESIGNER</h3>

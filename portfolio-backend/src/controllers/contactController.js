@@ -2,6 +2,14 @@ const { validationResult } = require('express-validator');
 const Contact = require('../models/Contact');
 const { sendContactNotification, sendContactAutoReply } = require('../utils/email');
 const logger = require('../utils/logger');
+const mongoose = require('mongoose');
+
+const isValidId = (id) => mongoose.isValidObjectId(id);
+const notFound = (msg) => {
+  const err = new Error(msg);
+  err.statusCode = 404;
+  return err;
+};
 
 /**
  * POST /api/contact
@@ -94,12 +102,9 @@ exports.getContacts = async (req, res, next) => {
  */
 exports.getContact = async (req, res, next) => {
   try {
+    if (!isValidId(req.params.id)) return next(notFound('Contact not found'));
     const contact = await Contact.findById(req.params.id);
-    if (!contact) {
-      const err = new Error('Contact not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!contact) return next(notFound('Contact not found'));
     // Mark as read automatically when viewed
     if (contact.status === 'unread') {
       contact.status = 'read';
@@ -122,16 +127,13 @@ exports.updateContactStatus = async (req, res, next) => {
       return res.status(400).json({ success: false, message: `Status must be one of: ${allowed.join(', ')}` });
     }
 
+    if (!isValidId(req.params.id)) return next(notFound('Contact not found'));
     const contact = await Contact.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
     );
-    if (!contact) {
-      const err = new Error('Contact not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!contact) return next(notFound('Contact not found'));
 
     res.json({ success: true, data: contact });
   } catch (err) {
@@ -144,12 +146,9 @@ exports.updateContactStatus = async (req, res, next) => {
  */
 exports.deleteContact = async (req, res, next) => {
   try {
+    if (!isValidId(req.params.id)) return next(notFound('Contact not found'));
     const contact = await Contact.findByIdAndDelete(req.params.id);
-    if (!contact) {
-      const err = new Error('Contact not found');
-      err.statusCode = 404;
-      return next(err);
-    }
+    if (!contact) return next(notFound('Contact not found'));
     res.json({ success: true, message: 'Contact deleted' });
   } catch (err) {
     next(err);

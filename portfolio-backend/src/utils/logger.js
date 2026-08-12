@@ -23,7 +23,7 @@ const logger = createLogger({
   format: process.env.NODE_ENV === 'production' ? prodFormat : devFormat,
   transports: [
     new transports.Console(),
-    ...(process.env.NODE_ENV === 'production'
+    ...(process.env.NODE_ENV === 'production' && !process.env.VERCEL
       ? [
           new transports.File({ filename: path.join('logs', 'error.log'), level: 'error' }),
           new transports.File({ filename: path.join('logs', 'combined.log') }),

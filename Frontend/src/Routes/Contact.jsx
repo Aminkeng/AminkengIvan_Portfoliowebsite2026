@@ -1,7 +1,7 @@
 import './contact.css';
 import { useState } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 function Contact(){
     const [formData, setFormData] = useState({

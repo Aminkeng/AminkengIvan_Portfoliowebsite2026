@@ -27,7 +27,7 @@ const projectSchema = new mongoose.Schema(
     ],
     category: {
       type: String,
-      enum: ['web', 'mobile', 'design', 'other'],
+      enum: ['web', 'mobile', 'design', 'video', 'book', 'other'],
       default: 'web',
     },
     imageUrl: {

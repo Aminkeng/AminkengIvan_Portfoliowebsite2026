@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import './Admindashboard.css'
 
 const COLORS = {
@@ -36,8 +36,43 @@ const MOCK = {
   monthlyViews: [210, 340, 280, 520, 390, 610, 480, 720, 530, 840, 670, 960],
 };
 
-const CATEGORIES = ["Portfolio", "Graphic", "Video", "Book"];
+const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
+const CATEGORIES = [
+  { value: "web", label: "Web" },
+  { value: "mobile", label: "Mobile" },
+  { value: "design", label: "Graphic" },
+  { value: "video", label: "Video" },
+  { value: "book", label: "Book" },
+  { value: "other", label: "Other" },
+];
+const CATEGORY_LABELS = Object.fromEntries(CATEGORIES.map(({ value, label }) => [value, label]));
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const formatDate = (value) => {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+};
+
+const normalizeProject = (project) => ({
+  id: String(project._id || project.id || ''),
+  title: project.title || '',
+  description: project.description || '',
+  category: project.category || 'other',
+  technologies: Array.isArray(project.technologies) ? project.technologies : [],
+  featured: Boolean(project.featured),
+  published: Boolean(project.published),
+  date: formatDate(project.createdAt || project.date),
+});
+
+const normalizeContact = (contact) => ({
+  id: String(contact._id || contact.id || ''),
+  name: contact.name || 'Unknown',
+  email: contact.email || '',
+  subject: contact.subject || 'Portfolio Contact',
+  message: contact.message || '',
+  status: contact.status || 'unread',
+  date: formatDate(contact.createdAt || contact.date),
+});
 
 function StatusBadge({ status }) {
   const map = {
@@ -56,16 +91,17 @@ function StatusBadge({ status }) {
 
 function CategoryBadge({ cat }) {
   const map = {
-    Graphic:   { bg: "#E6F1FB", color: "#185FA5" },
-    Video:     { bg: "#FAEEDA", color: "#854F0B" },
-    Book:      { bg: "#EEEDFE", color: "#534AB7" },
-    Portfolio: { bg: "#E1F5EE", color: "#0F6E56" },
+    web:   { bg: "#E1F5EE", color: "#0F6E56" },
+    mobile:{ bg: "#E6F1FB", color: "#185FA5" },
+    design:{ bg: "#E6F1FB", color: "#185FA5" },
+    video: { bg: "#FAEEDA", color: "#854F0B" },
+    book:  { bg: "#EEEDFE", color: "#534AB7" },
   };
   const s = map[cat] || { bg: "#F1EFE8", color: "#5F5E5A" };
   return (
     <span style={{ background: s.bg, color: s.color, fontSize: 11, fontWeight: 500,
       padding: "2px 8px", borderRadius: 4, whiteSpace: "nowrap" }}>
-      {cat}
+      {CATEGORY_LABELS[cat] || cat}
     </span>
   );
 }
@@ -104,14 +140,30 @@ function StatCard({ icon, label, value, sub, color }) {
 }
 
 function ProjectForm({ initial, onSave, onCancel }) {
-  const [form, setForm] = useState(initial || { title: "", category: "Portfolio", tech: "", featured: false, published: false });
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const [form, setForm] = useState(initial || {
+    title: "",
+    description: "",
+    category: "web",
+    technologies: "",
+    featured: false,
+    published: false,
+  });
+  const set = (key, value) => setForm(current => ({ ...current, [key]: value }));
+  const canSave = form.title.trim() && form.description.trim();
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <div>
         <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 3 }}>Project title</label>
-        <input value={form.title} onChange={e => set("title", e.target.value)}
+        <input value={form.title} onChange={e => set("title", e.target.value)} required
           style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "7px 10px",
+            border: "0.5px solid var(--color-border-secondary)", borderRadius: 6,
+            background: "var(--color-background-primary)", color: "var(--color-text-primary)" }} />
+      </div>
+      <div>
+        <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 3 }}>Description</label>
+        <textarea value={form.description} onChange={e => set("description", e.target.value)} required rows={3}
+          style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "7px 10px", resize: "vertical",
             border: "0.5px solid var(--color-border-secondary)", borderRadius: 6,
             background: "var(--color-background-primary)", color: "var(--color-text-primary)" }} />
       </div>
@@ -122,22 +174,22 @@ function ProjectForm({ initial, onSave, onCancel }) {
             style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "7px 10px",
               border: "0.5px solid var(--color-border-secondary)", borderRadius: 6,
               background: "var(--color-background-primary)", color: "var(--color-text-primary)" }}>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            {CATEGORIES.map(category => <option key={category.value} value={category.value}>{category.label}</option>)}
           </select>
         </div>
         <div style={{ flex: 1 }}>
           <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 3 }}>Technologies (comma-separated)</label>
-          <input value={form.tech} onChange={e => set("tech", e.target.value)}
+          <input value={form.technologies} onChange={e => set("technologies", e.target.value)}
             style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "7px 10px",
               border: "0.5px solid var(--color-border-secondary)", borderRadius: 6,
               background: "var(--color-background-primary)", color: "var(--color-text-primary)" }} />
         </div>
       </div>
       <div style={{ display: "flex", gap: 20 }}>
-        {[["featured","Featured"],["published","Published"]].map(([k,l]) => (
-          <label key={k} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, cursor: "pointer", color: "var(--color-text-primary)" }}>
-            <input type="checkbox" checked={form[k]} onChange={e => set(k, e.target.checked)} />
-            {l}
+        {[["featured","Featured"],["published","Published"]].map(([key,label]) => (
+          <label key={key} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, cursor: "pointer", color: "var(--color-text-primary)" }}>
+            <input type="checkbox" checked={form[key]} onChange={e => set(key, e.target.checked)} />
+            {label}
           </label>
         ))}
       </div>
@@ -145,8 +197,9 @@ function ProjectForm({ initial, onSave, onCancel }) {
         <button onClick={onCancel} style={{ fontSize: 13, padding: "6px 16px", borderRadius: 6,
           border: "0.5px solid var(--color-border-secondary)", background: "transparent",
           cursor: "pointer", color: "var(--color-text-primary)" }}>Cancel</button>
-        <button onClick={() => onSave(form)} style={{ fontSize: 13, padding: "6px 16px", borderRadius: 6,
-          border: "none", background: COLORS.blue, color: "#fff", cursor: "pointer", fontWeight: 500 }}>
+        <button onClick={() => onSave(form)} disabled={!canSave} style={{ fontSize: 13, padding: "6px 16px", borderRadius: 6,
+          border: "none", background: COLORS.blue, color: "#fff", cursor: canSave ? "pointer" : "not-allowed", fontWeight: 500,
+          opacity: canSave ? 1 : 0.6 }}>
           {initial ? "Save changes" : "Add project"}
         </button>
       </div>
@@ -156,9 +209,9 @@ function ProjectForm({ initial, onSave, onCancel }) {
 
 export default function AdminDashboard() {
   const [page, setPage] = useState("overview");
-  const [stats, setStats] = useState(MOCK.stats);
-  const [projects, setProjects] = useState(MOCK.projects);
-  const [contacts, setContacts] = useState(MOCK.contacts);
+  const [stats, setStats] = useState({ projects: 0, contacts: 0, unread: 0, views: 0 });
+  const [projects, setProjects] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [editProject, setEditProject] = useState(null);
   const [addingProject, setAddingProject] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
@@ -166,130 +219,176 @@ export default function AdminDashboard() {
   const [projectSearch, setProjectSearch] = useState("");
   const [toast, setToast] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
   const toastTimer = useRef(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
-
-  const showToast = (msg, type = "success") => {
+  const showToast = useCallback((msg, type = "success") => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast({ msg, type });
     toastTimer.current = setTimeout(() => setToast(null), 3000);
-  };
+  }, []);
 
-  const fetchWithAuth = async (path, opts = {}) => {
+  const fetchWithAuth = useCallback(async (path, options = {}) => {
     const token = localStorage.getItem('authToken');
-    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     if (token) headers.Authorization = `Bearer ${token}`;
-    const res = await fetch(`${API_URL}${path}`, { ...opts, headers });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(body.message || 'Request failed');
+    const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const validationMessage = Array.isArray(body.errors) ? body.errors[0]?.msg : null;
+      throw new Error(body.message || validationMessage || 'Request failed');
+    }
     return body;
-  };
+  }, []);
 
   useEffect(() => {
     // Load admin dashboard data (stats, projects, contacts)
     let mounted = true;
     (async () => {
       try {
-        const d = await fetchWithAuth('/admin/dashboard');
-        const p = await fetchWithAuth('/admin/projects');
-        const c = await fetchWithAuth('/admin/contacts');
+        const [dashboardResponse, projectsResponse, contactsResponse] = await Promise.all([
+          fetchWithAuth('/admin/dashboard'),
+          fetchWithAuth('/admin/projects'),
+          fetchWithAuth('/admin/contacts'),
+        ]);
         if (!mounted) return;
-        if (d && d.stats) setStats(d.stats);
-        if (Array.isArray(p)) setProjects(p);
-        if (Array.isArray(c)) setContacts(c);
+
+        const dashboard = dashboardResponse.data || {};
+        const projectData = Array.isArray(projectsResponse.data) ? projectsResponse.data : [];
+        const contactData = Array.isArray(contactsResponse.data) ? contactsResponse.data : [];
+        setProjects(projectData.map(normalizeProject));
+        setContacts(contactData.map(normalizeContact));
+        setStats({
+          projects: dashboard.projects?.total ?? projectData.length,
+          contacts: dashboard.contacts?.total ?? contactData.length,
+          unread: dashboard.contacts?.unread ?? contactData.filter(contact => contact.status === 'unread').length,
+          views: 0,
+        });
       } catch (err) {
         // If unauthenticated, show a toast (user should login)
-        showToast(err.message || 'Could not load admin data', 'danger');
+        if (mounted) showToast(err.message || 'Could not load admin data', 'danger');
+      } finally {
+        if (mounted) setLoading(false);
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [fetchWithAuth, showToast]);
 
-  const unreadCount = contacts.filter(c => c.status === "unread").length;
+  const unreadCount = contacts.filter(contact => contact.status === "unread").length;
 
-  const saveProject = (form) => {
-    (async () => {
-      const techArr = typeof form.tech === "string" ? form.tech.split(",").map(t => t.trim()).filter(Boolean) : form.tech;
-      try {
-        if (editProject) {
-          // Update
-          const updated = await fetchWithAuth(`/admin/projects/${editProject.id}`, { method: 'PUT', body: JSON.stringify({ ...form, tech: techArr }) });
-          setProjects(ps => ps.map(p => p.id === editProject.id ? updated.project || { ...p, ...form, tech: techArr } : p));
-          showToast('Project updated');
-          setEditProject(null);
-        } else {
-          // Create
-          const created = await fetchWithAuth('/admin/projects', { method: 'POST', body: JSON.stringify({ ...form, tech: techArr }) });
-          setProjects(ps => [created.project || { ...form, tech: techArr, id: Date.now(), date: new Date().toISOString().split('T')[0] }, ...ps]);
-          showToast('Project added');
-          setAddingProject(false);
-        }
-      } catch (err) {
-        showToast(err.message || 'Project save failed', 'danger');
-      }
-    })();
-  };
+  const saveProject = async (form) => {
+    const technologies = typeof form.technologies === "string"
+      ? form.technologies.split(",").map(technology => technology.trim()).filter(Boolean)
+      : form.technologies;
+    const payload = {
+      title: form.title.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      technologies,
+      featured: Boolean(form.featured),
+      published: Boolean(form.published),
+    };
 
-  const deleteProject = (id) => {
-    (async () => {
-      try {
-        await fetchWithAuth(`/admin/projects/${id}`, { method: 'DELETE' });
-        setProjects(ps => ps.filter(p => p.id !== id));
-        showToast('Project deleted', 'danger');
-      } catch (err) {
-        showToast(err.message || 'Delete failed', 'danger');
-      }
-    })();
-  };
-
-  const togglePublish = (id) => {
-    (async () => {
-      try {
-        const proj = projects.find(p => p.id === id);
-        if (!proj) return;
-        const updated = await fetchWithAuth(`/admin/projects/${id}`, { method: 'PUT', body: JSON.stringify({ ...proj, published: !proj.published }) });
-        setProjects(ps => ps.map(p => p.id === id ? updated.project || { ...p, published: !p.published } : p));
+    try {
+      if (editProject) {
+        // Update
+        const response = await fetchWithAuth(`/admin/projects/${editProject.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        const updatedProject = normalizeProject(response.data);
+        setProjects(current => current.map(project => project.id === editProject.id ? updatedProject : project));
         showToast('Project updated');
-      } catch (err) {
-        showToast(err.message || 'Update failed', 'danger');
+        setEditProject(null);
+      } else {
+        // Create
+        const response = await fetchWithAuth('/admin/projects', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        const createdProject = normalizeProject(response.data);
+        setProjects(current => [createdProject, ...current]);
+        setStats(current => ({ ...current, projects: current.projects + 1 }));
+        showToast('Project added');
+        setAddingProject(false);
       }
-    })();
+    } catch (err) {
+      showToast(err.message || 'Project save failed', 'danger');
+    }
   };
 
-  const markRead = (id) => {
+  const deleteProject = async (id) => {
+    try {
+      await fetchWithAuth(`/admin/projects/${id}`, { method: 'DELETE' });
+      setProjects(current => current.filter(project => project.id !== id));
+      setStats(current => ({ ...current, projects: Math.max(0, current.projects - 1) }));
+      showToast('Project deleted', 'danger');
+    } catch (err) {
+      showToast(err.message || 'Delete failed', 'danger');
+    }
+  };
+
+  const togglePublish = async (id) => {
+    try {
+      const project = projects.find(item => item.id === id);
+      if (!project) return;
+      const response = await fetchWithAuth(`/admin/projects/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ published: !project.published }),
+      });
+      const updatedProject = normalizeProject(response.data);
+      setProjects(current => current.map(item => item.id === id ? updatedProject : item));
+      showToast('Project updated');
+    } catch (err) {
+      showToast(err.message || 'Update failed', 'danger');
+    }
+  };
+
+  const markRead = async (id) => {
     // Optimistic UI update + server call
-    setContacts(cs => cs.map(c => c.id === id && c.status === "unread" ? { ...c, status: "read" } : c));
-    (async () => {
-      try { await fetchWithAuth(`/admin/contacts/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'read' }) }); } catch (err) { showToast(err.message || 'Could not mark read', 'danger'); }
-    })();
+    setContacts(current => current.map(contact => contact.id === id && contact.status === "unread" ? { ...contact, status: "read" } : contact));
+    setSelectedContact(current => current?.id === id ? { ...current, status: "read" } : current);
+    try {
+      await fetchWithAuth(`/admin/contacts/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'read' }),
+      });
+    } catch (err) {
+      showToast(err.message || 'Could not mark read', 'danger');
+    }
   };
 
-  const markReplied = (id) => {
-    setContacts(cs => cs.map(c => c.id === id ? { ...c, status: "replied" } : c));
-    (async () => {
-      try { await fetchWithAuth(`/admin/contacts/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'replied' }) }); showToast('Marked as replied'); }
-      catch (err) { showToast(err.message || 'Could not update', 'danger'); }
-    })();
+  const markReplied = async (id) => {
+    setContacts(current => current.map(contact => contact.id === id ? { ...contact, status: "replied" } : contact));
+    setSelectedContact(current => current?.id === id ? { ...current, status: "replied" } : current);
+    try {
+      await fetchWithAuth(`/admin/contacts/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'replied' }),
+      });
+      showToast('Marked as replied');
+    } catch (err) {
+      showToast(err.message || 'Could not update', 'danger');
+    }
   };
 
-  const deleteContact = (id) => {
-    (async () => {
-      try {
-        await fetchWithAuth(`/admin/contacts/${id}`, { method: 'DELETE' });
-        setContacts(cs => cs.filter(c => c.id !== id));
-        if (selectedContact?.id === id) setSelectedContact(null);
-        showToast('Contact deleted', 'danger');
-      } catch (err) {
-        showToast(err.message || 'Delete failed', 'danger');
-      }
-    })();
+  const deleteContact = async (id) => {
+    try {
+      await fetchWithAuth(`/admin/contacts/${id}`, { method: 'DELETE' });
+      setContacts(current => current.filter(contact => contact.id !== id));
+      setStats(current => ({ ...current, contacts: Math.max(0, current.contacts - 1) }));
+      if (selectedContact?.id === id) setSelectedContact(null);
+      showToast('Contact deleted', 'danger');
+    } catch (err) {
+      showToast(err.message || 'Delete failed', 'danger');
+    }
   };
 
-  const filteredContacts = contacts.filter(c => contactFilter === "all" || c.status === contactFilter);
-  const filteredProjects = projects.filter(p =>
-    p.title.toLowerCase().includes(projectSearch.toLowerCase()) ||
-    p.category.toLowerCase().includes(projectSearch.toLowerCase())
+  const filteredContacts = contacts.filter(contact => contactFilter === "all" || contact.status === contactFilter);
+  const search = projectSearch.toLowerCase();
+  const filteredProjects = projects.filter(project =>
+    project.title.toLowerCase().includes(search) ||
+    (CATEGORY_LABELS[project.category] || project.category).toLowerCase().includes(search)
   );
 
   const navItems = [
@@ -399,6 +498,12 @@ export default function AdminDashboard() {
 
       {/* Main */}
       <div style={{ flex: 1, overflow: "auto", minWidth: 0 }}>
+
+        {loading && (
+          <div style={{ padding: "10px 22px", fontSize: 12, color: "var(--color-text-secondary)" }}>
+            Loading dashboard…
+          </div>
+        )}
 
         {/* ── Overview ── */}
         {page === "overview" && (
@@ -524,7 +629,7 @@ export default function AdminDashboard() {
                 <div key={p.id}>
                   {editProject?.id === p.id ? (
                     <div style={{ padding: "14px", background: "var(--color-background-secondary)" }}>
-                      <ProjectForm initial={{ ...editProject, tech: editProject.tech.join(", ") }}
+                      <ProjectForm initial={{ ...editProject, technologies: editProject.technologies.join(", ") }}
                         onSave={saveProject} onCancel={() => setEditProject(null)} />
                     </div>
                   ) : (
@@ -538,12 +643,12 @@ export default function AdminDashboard() {
                       </div>
                       <div><CategoryBadge cat={p.category} /></div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-                        {p.tech.slice(0, 2).map(t => (
-                          <span key={t} style={{ fontSize: 10, background: "var(--color-background-secondary)",
+                        {p.technologies.slice(0, 2).map(technology => (
+                          <span key={technology} style={{ fontSize: 10, background: "var(--color-background-secondary)",
                             border: "0.5px solid var(--color-border-tertiary)", borderRadius: 4,
-                            padding: "1px 5px", color: "var(--color-text-secondary)" }}>{t}</span>
+                            padding: "1px 5px", color: "var(--color-text-secondary)" }}>{technology}</span>
                         ))}
-                        {p.tech.length > 2 && <span style={{ fontSize: 10, color: "var(--color-text-secondary)" }}>+{p.tech.length - 2}</span>}
+                        {p.technologies.length > 2 && <span style={{ fontSize: 10, color: "var(--color-text-secondary)" }}>+{p.technologies.length - 2}</span>}
                       </div>
                       <div>
                         {p.featured
