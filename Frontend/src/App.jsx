@@ -18,7 +18,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import Figure from './components/Figure';
 import Login from "./Routes/Login";
-import AdminDashboard from './Routes/AdminDashboard';
+import AdminDashboard from './Routes/Admindashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css'
 
