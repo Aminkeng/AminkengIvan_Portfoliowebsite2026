@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import './AdminDashboard.css'
+import './Admindashboard.css'
 
 const COLORS = {
   navy: "#1F3864", blue: "#2E75B6", lblue: "#D6E4F0",
