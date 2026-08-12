@@ -7,9 +7,10 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000,
     });
     logger.info(`MongoDB connected: ${conn.connection.host}`);
+    return conn;
   } catch (err) {
     logger.error(`MongoDB connection error: ${err.message}`);
-    process.exit(1);
+    throw err;
   }
 };
 

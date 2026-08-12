@@ -168,13 +168,13 @@ export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const toastTimer = useRef(null);
 
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
+
   const showToast = (msg, type = "success") => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast({ msg, type });
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
-
-  const API_URL = 'http://localhost:5000/api';
 
   const fetchWithAuth = async (path, opts = {}) => {
     const token = localStorage.getItem('authToken');
