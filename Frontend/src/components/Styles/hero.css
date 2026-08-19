@@ -62,7 +62,7 @@
    ══════════════════════════════ */
 .hero h3 {
   position: absolute;
-  bottom: 62%;
+  bottom: 63%;
   left: 0;
   width: 100%;
   color: #ffffff;
@@ -135,13 +135,13 @@
   }
 
   .hero h3 {
-    bottom: 20%;
+    top: 20%;
     font-size: clamp(0.65rem, 2.2vw, 0.95rem);
     letter-spacing: 0.05em;
   }
 
   .hero h1 {
-    bottom: 6%;
+    top: 28%;
     font-size: clamp(1.3rem, 5vw, 2.6rem);
   }
 }
@@ -161,13 +161,13 @@
   .hero2 { display: block; }
 
   .hero h3 {
-    bottom: 18%;
+    top: 6%;
     font-size: clamp(0.6rem, 3vw, 0.85rem);
     letter-spacing: 0.04em;
   }
 
   .hero h1 {
-    bottom: 5%;
+    top: 12%;
     font-size: clamp(1.1rem, 6.5vw, 1.8rem);
     line-height: 1.15;
   }
@@ -178,12 +178,12 @@
    ══════════════════════════════════════ */
 @media screen and (max-width: 360px) {
   .hero h3 {
-    bottom: 16%;
+    top: 6%;
     font-size: 0.6rem;
   }
 
   .hero h1 {
-    bottom: 4%;
+    top: 12%;
     font-size: clamp(1rem, 7vw, 1.4rem);
   }
 }

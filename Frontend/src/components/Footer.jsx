@@ -14,7 +14,7 @@ function Footer() {
         <>
             <footer>
                 <div className="footer-section about-section">
-                    <h1>ABOUT BIG JONES</h1>
+                    <h1>ABOUT US</h1>
                     <p>As a graphic designer and video editor, you blend visual 
                       artistry with technical precision to craft compelling narratives
                       across mediums. Your eye for composition and color harmonizes with
