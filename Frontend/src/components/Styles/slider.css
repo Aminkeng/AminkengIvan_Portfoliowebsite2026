@@ -12,6 +12,18 @@
   box-shadow: 0 30px 50px #dbdbdb;
   overflow: hidden;
   border-radius: 8px;
+  animation: sliderLaunchFade 1s ease-out both;
+}
+
+@keyframes sliderLaunchFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container {
+    animation: none;
+  }
 }
 
 /* ═══════════════════

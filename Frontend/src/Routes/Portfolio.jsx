@@ -16,7 +16,8 @@ const portfolioItems = [
     id: 1,
     image: webdesign,
     title: "Web Design",
-    description: "Creating stunning, user-friendly websites that combine aesthetic appeal with functional design principles."
+    description: "Creating stunning, user-friendly websites that combine aesthetic appeal with functional design principles.",
+    link: "/webdesign"
   },
   {
     id: 2,

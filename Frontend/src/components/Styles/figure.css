@@ -9,6 +9,18 @@
   margin-bottom: 5rem;
   background-color: rgb(198, 180, 166);
   padding: 2rem 1rem;
+  animation: figureLaunchFade 1s ease-out both;
+}
+
+@keyframes figureLaunchFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure1 {
+    animation: none;
+  }
 }
 
 /* ── Individual card ── */

@@ -1,0 +1,237 @@
+.web-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1f114d 45%, #31206a 100%);
+    color: #f8fafc;
+    padding-bottom: 4rem;
+}
+
+.web-hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5.5rem 1.5rem 3rem;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.web-hero__content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.web-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+    font-weight: 700;
+}
+
+.web-hero h1 {
+    font-size: clamp(2.2rem, 4vw, 3.3rem);
+    margin: 0 0 1rem;
+    line-height: 1.1;
+}
+
+.web-hero p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+    margin: 0;
+}
+
+.web-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+}
+
+.web-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.15rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.web-btn:hover {
+    transform: translateY(-2px);
+}
+
+.web-btn--primary {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    box-shadow: 0 12px 30px rgba(236, 72, 153, 0.25);
+}
+
+.web-btn--ghost {
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.web-hero__stats {
+    display: grid;
+    gap: 1rem;
+}
+
+.web-hero__stats div {
+    padding: 1rem 1.2rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.web-hero__stats strong {
+    display: block;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.web-hero__stats span {
+    color: #d8b4fe;
+    font-size: 0.95rem;
+}
+
+.web-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card-item {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 1.5rem;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    color: #111827;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 28px;
+    padding: 1.25rem;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card-item:hover {
+    transform: translateY(-4px);
+    border-color: #8b5cf6;
+    box-shadow: 0 24px 50px rgba(139, 92, 246, 0.2);
+}
+
+.card-item--reverse .card-media {
+    order: 2;
+}
+
+.card-media iframe {
+    width: 100%;
+    height: 320px;
+    border: 0;
+    border-radius: 20px;
+    background: #0f172a;
+}
+
+.card-copy {
+    padding: 0.5rem 0.25rem;
+}
+
+.card-badge {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: #ede9fe;
+    color: #6d28d9;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.card-copy h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.6rem;
+    color: #1f2937;
+}
+
+.card-copy p {
+    margin: 0 0 1rem;
+    line-height: 1.7;
+    color: #4b5563;
+}
+
+.card-highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.card-highlights li {
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+@media screen and (max-width: 900px) {
+    .web-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .card-item {
+        grid-template-columns: 1fr;
+    }
+
+    .card-item--reverse .card-media {
+        order: 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .web-hero {
+        padding-top: 4.5rem;
+    }
+
+    .web-hero__content,
+    .web-hero__stats div {
+        padding: 1.2rem;
+    }
+
+    .web-container {
+        padding: 0 1rem;
+    }
+
+    .card-item {
+        padding: 1rem;
+    }
+
+    .card-media iframe {
+        height: 240px;
+    }
+
+    .web-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .web-btn {
+        width: 100%;
+    }
+}

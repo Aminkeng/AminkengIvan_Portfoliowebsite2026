@@ -8,6 +8,7 @@ import Book from "./Routes/Book";
 import Video from "./Routes/Video";
 import Graphic from "./Routes/Graphic";
 import Graphicdesignpro from "./Routes/ProjectPage/Graphicdesignpro";
+import Webdesign from './Routes/ProjectPage/Webdesign';
 import Videopro from './Routes/ProjectPage/Videopro';
 import Hero from './components/Hero';
 import About from './Routes/About';
@@ -51,6 +52,7 @@ useEffect(() => {
             <Route path="/videopro" element={<Videopro />} />
             <Route path="/graphic" element={<Graphic />} />
             <Route path="/graphicdesignpro" element={<Graphicdesignpro />} />
+            <Route path="/webdesign" element={<Webdesign />} />
             <Route path="/hero" element={<Hero />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />

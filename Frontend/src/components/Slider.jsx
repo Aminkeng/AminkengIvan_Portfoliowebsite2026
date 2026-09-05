@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import './Styles/slider.css';
 import Slide1 from '../assets/Slide1.jpg';
 import Slide3 from '../assets/Slide3.jpg';
@@ -19,24 +19,29 @@ const IMAGES = [
 export default function Slider() {
   const [items, setItems]         = useState(IMAGES);
   const [direction, setDirection] = useState("next");
-  const [animating, setAnimating] = useState(false);
+  const animating = useRef(false);
 
-  const rotate = (dir) => {
-    if (animating) return;
+  const rotate = useCallback((dir) => {
+    if (animating.current) return;
+    animating.current = true;
     setDirection(dir);
 
     // Pre-set direction class BEFORE updating items so the
     // entering item starts from the correct off-screen position.
     requestAnimationFrame(() => {
-      setAnimating(true);
       setItems((prev) =>
         dir === "next"
           ? [...prev.slice(1), prev[0]]
           : [prev[prev.length - 1], ...prev.slice(0, -1)]
       );
-      setTimeout(() => setAnimating(false), 500);
+      setTimeout(() => { animating.current = false; }, 500);
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => rotate("next"), 5000);
+    return () => clearInterval(interval);
+  }, [rotate]);
 
   return (
     <div className={`container dir-${direction}`}>

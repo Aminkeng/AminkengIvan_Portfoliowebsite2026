@@ -75,7 +75,7 @@ function Contact(){
                                 <div className="info-icon">📍</div>
                                 <div className="info-details">
                                     <h3>Address</h3>
-                                    <p>144401, GNA University<br/>Phagwara-Hoshiarpur Rd</p>
+                                    <p>Cameroon<br/>Douala-Bonaberi-Rail</p>
                                 </div>
                             </div>
                             
@@ -91,7 +91,7 @@ function Contact(){
                                 <div className="info-icon">📞</div>
                                 <div className="info-details">
                                     <h3>Phone</h3>
-                                    <p>+919-878-488-851</p>
+                                    <p>+237-678-204-309</p>
                                 </div>
                             </div>
 

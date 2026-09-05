@@ -2,6 +2,7 @@ import Hero from '../components/Hero'
 import Slider from '../components/Slider'
 import Figure from '../components/Figure'
 import { useEffect } from 'react';
+import '../components/Styles/home.css';
 
 
 export default function Home(){
@@ -10,10 +11,10 @@ export default function Home(){
   }, []); 
 
     return(
-        <>
+      <main className="home-page">
         <Hero/>
         <Slider/>
         <Figure/>
-        </>
+      </main>
     )
 }

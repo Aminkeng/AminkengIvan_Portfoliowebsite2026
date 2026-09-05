@@ -1,29 +1,67 @@
-.main-graph{
-    width: 75%;
-    margin-bottom: 100px;
-    margin-top: 100px;
-    justify-items: center;
-    position: relative;
-    box-shadow: 0 5px 15px black;
-    flex-wrap: wrap;
-    justify-self: center;
+/* graphic.css */
+
+.main-graph {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #2b2b2b;
+  line-height: 1.7;
+}
+
+.main-graph h2 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1a1a2e;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.main-graph > p {
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  color: #444;
+}
+
+.main-graph .pic {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.main-graph .pic img {
+  max-width: 100%;
+  width: 600px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.main-graph .pic img:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+}
+
+.main-graph .body-text {
+  background: #fafafa;
+  border-left: 4px solid #6c63ff;
+  padding: 1.5rem 1.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+}
+
+@media (max-width: 640px) {
+  .main-graph {
+    padding: 2rem 1rem 3rem;
   }
 
-  .main-graph h2{
-    font-size: 33px;
-    padding-top: 30px;
-    margin-left: 40px;
-    padding-left: 30px;
-    width: 90%;
+  .main-graph h2 {
+    font-size: 1.5rem;
   }
 
-  .main-graph p{
-    font-size: 20px;
-    padding: 32px;
-    width: 90%;
-    margin-left: 40px;
+  .main-graph .pic img {
+    width: 100%;
   }
-
-  .pic{
-    justify-content: center;
-  }
+}
